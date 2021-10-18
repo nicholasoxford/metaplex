@@ -27,11 +27,7 @@ const UserActions = () => {
           {/* <Link to={`#`}>
             <Button className="app-btn">Bids</Button>
           </Link> */}
-          {canCreate ? (
-            <Link to={`/art/create`}>
-              <Button className="app-btn">Create</Button>
-            </Link>
-          ) : null}
+
           <Link to={`/auction/create/0`}>
             <Button className="connector" type="primary">
               Sell
@@ -53,7 +49,7 @@ const DefaultActions = ({ vertical = false }: { vertical?: boolean }) => {
       }}
     >
       <Link to={`/`}>
-        <Button className="app-btn">Explore</Button>
+        <Button className="app-btn">Explore Satoshi Heist Vault</Button>
       </Link>
       <Link to={`/artworks`}>
         <Button className="app-btn">

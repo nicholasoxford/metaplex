@@ -11,6 +11,7 @@ import {
   fromUTF8Array,
   parseDate,
   parsePrice,
+  parsePercentage,
 } from './helpers/various';
 import { Token, TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { PublicKey } from '@solana/web3.js';
@@ -599,19 +600,24 @@ programCommand('update_candy_machine')
     'timestamp - eg "04 Dec 1995 00:12:00 GMT" or "now"',
   )
   .option('-p, --price <string>', 'SOL price')
+  .option(
+    '-points, --sellerFeeBasisPoints <number>',
+    'royalties percentage awarded to creators',
+  )
   .action(async (directory, cmd) => {
-    const { keypair, env, date, price, cacheName } = cmd.opts();
+    const { keypair, env, date, price, cacheName, points } = cmd.opts();
     const cacheContent = loadCache(cacheName, env);
 
     const secondsSinceEpoch = date ? parseDate(date) : null;
     const lamports = price ? parsePrice(price) : null;
-
+    const sellerPercent = points ? parsePercentage(points) : null;
     const walletKeyPair = loadWalletKey(keypair);
     const anchorProgram = await loadCandyProgram(walletKeyPair, env);
 
     const candyMachine = new PublicKey(cacheContent.candyMachineAddress);
     const tx = await anchorProgram.rpc.updateCandyMachine(
       lamports ? new anchor.BN(lamports) : null,
+      sellerPercent ? new anchor.BN(sellerPercent) : null,
       secondsSinceEpoch ? new anchor.BN(secondsSinceEpoch) : null,
       {
         accounts: {
@@ -620,7 +626,7 @@ programCommand('update_candy_machine')
         },
       },
     );
-
+    cacheContent.sellerFeeBasisPoints = sellerPercent;
     cacheContent.startDate = secondsSinceEpoch;
     saveCache(cacheName, env, cacheContent);
     if (date)
